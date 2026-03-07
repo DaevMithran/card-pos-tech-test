@@ -1,0 +1,19 @@
+syntax = "proto3"
+
+package hsm.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/DaevMithran/mini-hsm/types;
+
+message KeyMetadata {
+    string kid = 1;
+
+    string algorithm = 2;
+    
+    google.protobuf.Timestamp created_at = 3  [(gogoproto.nullable) = false];
+    
+    google.protobuf.Timestamp updated_at = 4  [(gogoproto.nullable) = true];
+    
+    int32 version = 5;
+}

@@ -1,0 +1,50 @@
+syntax = "proto3"
+
+package hsm.v1;
+
+option go_package = "github.com/DaevMithran/mini-hsm/types;
+
+service Msg {
+    rpc CreateKey(CreateKeyRequest) returns (CreateKeyResponse);
+
+    rpc RotateKey(RotateKeyRequest) returns (RotateKeyResponse);
+
+    rpc Sign(SignRequest) returns (SignResponse);
+
+    rpc Verify(VerifyRequest) returns (VerifyResponse);
+}
+
+message CreateKeyRequest {}
+
+message CreateKeyResponse {
+    KeyMetadata key = 1;
+}
+
+message RotateKeyRequest {
+    string kid = 1;
+}
+
+message RotateKeyResponse {
+    KeyMetadata key = 1;
+}
+
+message SignRequest {
+    string kid = 1;
+    bytes message = 2;
+}
+
+message SignResponse {
+    bytes signature = 1;
+}
+
+message VerifyRequest {
+    string kid = 1;
+    bytes data = 2;
+    bytes signature = 3;
+}
+
+message VerifyResponse {
+    bool valid = 1;
+}
+
+

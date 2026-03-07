@@ -1,0 +1,44 @@
+syntax = "proto3"
+
+package hsm.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/DaevMithran/mini-hsm/types;
+
+service Query {
+    rpc ListKeys(ListKeysRequest) returns (QueryListKeysResponse) {
+        option (google.api.http) = { get: "/hsm/v1/keys" };
+    }
+
+    rpc GetPublicKey(QueryGetPublicKeyRequest) returns (QueryGetPublicKeyResponse) {
+        option (google.api.http) = { get: "/hsm/v1/keys/{kid}" };
+    }
+
+    rpc GetPublicKeyVersion(QueryGetPublicKeyVersionRequest) returns (QueryGetPublicKeyVersionResponse) {
+        option (google.api.http) = { get: "/hsm/v1/keys/{kid}/version/{version}" };
+    }
+}
+
+message QueryListKeysRequest {}
+
+message QueryListKeysResponse {
+    repeated KeyMetadata keys = 1;
+}
+
+message QueryGetPublicKeyRequest {
+    string kid = 1;
+}
+
+message QueryGetPublicKeyResponse {
+    string public_key_pem = 1;
+}
+
+message QueryGetPublicKeyVersionRequest {
+    string kid = 1;
+    string version = 2;
+}
+
+message QueryGetPublicKeyVersionResponse {
+    string public_key_pem = 1;
+}
