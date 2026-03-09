@@ -21,7 +21,8 @@ type Metadata struct {
 const ECDSA_P256 = "ECDSA_P256"
 
 var (
-	ErrorKeyNotFound = errors.New("Key Not Found")
+	ErrorKeyNotFound       = errors.New("Key Not Found")
+	ErrorInvalidKeyVersion = errors.New("Invalid Key Version")
 )
 
 type IKeyStoreManager interface {

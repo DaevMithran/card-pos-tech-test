@@ -32,7 +32,8 @@ func parseVaultKey(key string) (kid string, version int32) {
 }
 
 func (v *Vault) Store(kid string, version int32, privKey *ecdsa.PrivateKey) {
-	v.keys.Store(vaultKey(kid, version), privKey)
+	vk := vaultKey(kid, version)
+	v.keys.Store(vk, privKey)
 }
 
 func (v *Vault) Sign(kid string, version int32, data []byte) ([]byte, error) {
@@ -70,7 +71,6 @@ func (v *Vault) Export() []SerializedVault {
 			Version:    version,
 			PrivKeyDER: der,
 		})
-		clearKey(der)
 		return true
 	})
 	return entries

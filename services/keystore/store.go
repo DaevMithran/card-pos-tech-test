@@ -10,9 +10,7 @@ import (
 	"os"
 )
 
-type KeyStoreManager struct{}
-
-func (km *KeyStoreManager) Encrypt(data []byte) ([]byte, error) {
+func Encrypt(data []byte) ([]byte, error) {
 	raw := os.Getenv("HSM_MASTER_KEY")
 	if raw == "" {
 		return []byte{}, errors.New("HSM_MASTER_KEY not set")
@@ -39,7 +37,7 @@ func (km *KeyStoreManager) Encrypt(data []byte) ([]byte, error) {
 	return gcm.Seal(iv, iv, data, nil), nil
 }
 
-func (km *KeyStoreManager) Decrypt(ciphertext []byte) ([]byte, error) {
+func Decrypt(ciphertext []byte) ([]byte, error) {
 	raw := os.Getenv("HSM_MASTER_KEY")
 	if raw == "" {
 		return []byte{}, errors.New("HSM_MASTER_KEY not set")

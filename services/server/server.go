@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"github.com/DaevMithran/mini-hsm/services/keystore"
 	types "github.com/DaevMithran/mini-hsm/types/hsm/v1"
@@ -90,6 +91,32 @@ func (s *Server) GetPublicKey(_ context.Context, req *types.QueryGetPublicKeyReq
 	}
 
 	return &types.QueryGetPublicKeyResponse{PublicKeyPem: publicKeyPem}, nil
+}
+
+// GetPublicKeyVersion returns the PEM-encoded public key for the given kid for a specific version
+func (s *Server) GetPublicKeyVersion(_ context.Context, req *types.QueryGetPublicKeyVersionRequest) (*types.QueryGetPublicKeyVersionResponse, error) {
+	if req.GetKid() == "" {
+		return nil, status.Error(codes.InvalidArgument, "kid is required")
+	}
+
+	if req.GetVersion() == "" {
+		return nil, status.Error(codes.InvalidArgument, "Version is required")
+	}
+
+	v, err := strconv.ParseInt(req.GetVersion(), 10, 32)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, keystore.ErrorInvalidKeyVersion.Error())
+	}
+
+	publicKeyPem, err := s.store.GetPublicKeyVersion(req.GetKid(), int32(v))
+	if err != nil {
+		if errors.Is(err, keystore.ErrorKeyNotFound) {
+			return nil, status.Error(codes.NotFound, keystore.ErrorKeyNotFound.Error())
+		}
+		return nil, status.Errorf(codes.Internal, "public key fetch failed: %v", err)
+	}
+
+	return &types.QueryGetPublicKeyVersionResponse{PublicKeyPem: publicKeyPem}, nil
 }
 
 // ListKeys returns metadata for all managed keys.

@@ -7,7 +7,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
-	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -102,10 +101,31 @@ func (ks *KeyStore) GetPublicKey(kid string) (string, error) {
 	ks.mu.RUnlock()
 
 	if !ok {
-		return "", fmt.Errorf("Key not found")
+		return "", ErrorKeyNotFound
 	}
 
 	keyVersion := metadata.Versions[len(metadata.Versions)-1]
+	return keyVersion.PublicKeyPEM, nil
+}
+
+func (ks *KeyStore) GetPublicKeyVersion(kid string, version int32) (string, error) {
+	if version < 1 {
+		return "", ErrorInvalidKeyVersion
+	}
+
+	ks.mu.RLock()
+	metadata, ok := ks.keys[kid]
+	ks.mu.RUnlock()
+
+	if version > int32(len(metadata.Versions)) {
+		return "", ErrorInvalidKeyVersion
+	}
+
+	if !ok {
+		return "", ErrorInvalidKeyVersion
+	}
+
+	keyVersion := metadata.Versions[version-1]
 	return keyVersion.PublicKeyPEM, nil
 }
 
@@ -115,7 +135,7 @@ func (ks *KeyStore) RotateKey(kid string) (*types.KeyMetadata, error) {
 
 	metadata, ok := ks.keys[kid]
 	if !ok {
-		return nil, fmt.Errorf("Key not found")
+		return nil, ErrorKeyNotFound
 	}
 
 	version := int32(len(metadata.Versions)) + 1
@@ -146,6 +166,7 @@ func (ks *KeyStore) RotateKey(kid string) (*types.KeyMetadata, error) {
 	}
 
 	metadata.UpdatedAt = createdAt
+	metadata.Versions = append(metadata.Versions, &keyVersion)
 
 	// store to the vault
 	ks.vault.Store(kid, version, privKey)
@@ -217,10 +238,21 @@ func (ks *KeyStore) Export() ([]byte, error) {
 		Vault:    ks.vault.Export(),
 		Metadata: sm,
 	}
-	return json.Marshal(keyStore)
+
+	bytes, err := json.Marshal(keyStore)
+	if err != nil {
+		return nil, err
+	}
+
+	return Encrypt(bytes)
 }
 
-func (ks *KeyStore) Import(data []byte) error {
+func (ks *KeyStore) Import(ciphertext []byte) error {
+	data, err := Decrypt(ciphertext)
+	if err != nil {
+		return err
+	}
+
 	var sk serializedKeyStore
 	if err := json.Unmarshal(data, &sk); err != nil {
 		return err
@@ -241,10 +273,10 @@ func (ks *KeyStore) Import(data []byte) error {
 		}
 		newKeys[e.Kid] = mk
 	}
-	ks.vault.Import(sk.Vault)
 
 	ks.mu.Lock()
 	ks.keys = newKeys
+	ks.vault.Import(sk.Vault)
 	ks.mu.Unlock()
 	return nil
 }
