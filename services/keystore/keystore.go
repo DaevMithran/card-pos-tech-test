@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	types "github.com/DaevMithran/mini-hsm/hsm/v1"
+	types "github.com/DaevMithran/mini-hsm/types/hsm/v1"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -25,7 +25,8 @@ type KeyStore struct {
 
 func NewKeyStore() *KeyStore {
 	return &KeyStore{
-		keys: make(map[string]*Metadata),
+		keys:  make(map[string]*Metadata),
+		vault: &Vault{},
 	}
 }
 
@@ -77,13 +78,13 @@ func (ks *KeyStore) CreateKey() (*types.KeyMetadata, error) {
 	}, nil
 }
 
-func (ks *KeyStore) ListKeys() []types.KeyMetadata {
+func (ks *KeyStore) ListKeys() []*types.KeyMetadata {
 	ks.mu.RLock()
 	defer ks.mu.RUnlock()
 
-	result := []types.KeyMetadata{}
+	result := []*types.KeyMetadata{}
 	for kid, metadata := range ks.keys {
-		result = append(result, types.KeyMetadata{
+		result = append(result, &types.KeyMetadata{
 			Kid:       kid,
 			Algorithm: metadata.Algorithm,
 			CreatedAt: timestamppb.New(metadata.CreatedAt),
@@ -220,13 +221,13 @@ func (ks *KeyStore) Export() ([]byte, error) {
 }
 
 func (ks *KeyStore) Import(data []byte) error {
-	var entries []SerializedMetadata
-	if err := json.Unmarshal(data, &entries); err != nil {
+	var sk serializedKeyStore
+	if err := json.Unmarshal(data, &sk); err != nil {
 		return err
 	}
 
 	newKeys := make(map[string]*Metadata)
-	for _, e := range entries {
+	for _, e := range sk.Metadata {
 		mk := &Metadata{
 			Algorithm: e.Algorithm,
 			Versions:  make([]*KeyVersion, len(e.Versions)),
@@ -240,6 +241,7 @@ func (ks *KeyStore) Import(data []byte) error {
 		}
 		newKeys[e.Kid] = mk
 	}
+	ks.vault.Import(sk.Vault)
 
 	ks.mu.Lock()
 	ks.keys = newKeys

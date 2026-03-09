@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	types "github.com/DaevMithran/mini-hsm/hsm/v1"
 	"github.com/DaevMithran/mini-hsm/services/keystore"
+	types "github.com/DaevMithran/mini-hsm/types/hsm/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -96,7 +96,7 @@ func (s *Server) GetPublicKey(_ context.Context, req *types.QueryGetPublicKeyReq
 func (s *Server) ListKeys(_ context.Context, _ *types.QueryListKeysRequest) (*types.QueryListKeysResponse, error) {
 	metadatas := s.store.ListKeys()
 	resp := &types.QueryListKeysResponse{
-		Keys: make([]*types.KeyMetadata, 0, len(metadatas)),
+		Keys: metadatas,
 	}
 
 	return resp, nil

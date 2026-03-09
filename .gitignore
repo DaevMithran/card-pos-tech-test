@@ -1,1 +1,36 @@
 *.enc
+bin
+
+.env
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Dependency directories (uncomment the below to include it)
+# vendor/ 
+
+# Operating System files
+.DS_Store
+
+# IDE specific files
+.vscode/launch.json
+# Add any other IDE/editor specific files here (e.g., .idea/ for GoLand/IntelliJ)
+
+# Go workspace file sums (machine-specific)
+go.work.sum
+
+# Generated Protobuf Go files (optional, best practice is to commit them)
+# If you choose NOT to commit them, uncomment the lines below and ensure 
+# they match your project structure, e.g.,
+# ./proto/*.pb.go
+# ./proto/*_grpc.pb.go

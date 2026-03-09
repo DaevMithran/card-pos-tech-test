@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"crypto/x509"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -77,12 +76,8 @@ func (v *Vault) Export() []SerializedVault {
 	return entries
 }
 
-func (v *Vault) Import(data []byte) error {
-	var entries []SerializedVault
-	if err := json.Unmarshal(data, &entries); err != nil {
-		return err
-	}
-	for _, e := range entries {
+func (v *Vault) Import(data []SerializedVault) error {
+	for _, e := range data {
 		privKey, err := x509.ParseECPrivateKey(e.PrivKeyDER)
 		if err != nil {
 			return err

@@ -1,15 +1,15 @@
 version: v1
 plugins:
   - name: go
-    out: .
+    out: ./types
     opt:
       - paths=source_relative
   - name: go-grpc
-    out: .
+    out: ./types
     opt:
       - paths=source_relative
   - name: grpc-gateway
-    out: .
+    out: ./types
     opt:
       - paths=source_relative
       - logtostderr=true
