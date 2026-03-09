@@ -1,8 +1,0 @@
-version: v1
-plugins:
-  - name: grpc-gateway
-    out: ..
-    opt:
-      - paths=source_relative
-      - logtostderr=true
-      - allow_colon_final_segments=true

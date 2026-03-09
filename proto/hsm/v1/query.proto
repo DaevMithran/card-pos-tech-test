@@ -1,44 +1,63 @@
-syntax = "proto3"
+syntax = "proto3";
 
 package hsm.v1;
 
 import "google/api/annotations.proto";
+import "hsm/v1/key.proto";
 
-option go_package = "github.com/DaevMithran/mini-hsm/types;
+option go_package = "github.com/DaevMithran/mini-hsm/types";
 
+// Query defines the gRPC querier service for the hsm.v1 module.
 service Query {
-    rpc ListKeys(ListKeysRequest) returns (QueryListKeysResponse) {
+    // Fetch the list of all key pairs metadata.
+    rpc ListKeys(QueryListKeysRequest) returns (QueryListKeysResponse) {
         option (google.api.http) = { get: "/hsm/v1/keys" };
     }
 
+    // Fetch the latest version of the public key for a given kid.
     rpc GetPublicKey(QueryGetPublicKeyRequest) returns (QueryGetPublicKeyResponse) {
         option (google.api.http) = { get: "/hsm/v1/keys/{kid}" };
     }
 
+    // Fetch a specific version of the public key for a given kid.
     rpc GetPublicKeyVersion(QueryGetPublicKeyVersionRequest) returns (QueryGetPublicKeyVersionResponse) {
         option (google.api.http) = { get: "/hsm/v1/keys/{kid}/version/{version}" };
     }
 }
 
+// QueryListKeysRequest defines the Query/ListKeys request type.
 message QueryListKeysRequest {}
 
+// QueryListKeysResponse defines the Query/ListKeys response type.
 message QueryListKeysResponse {
     repeated KeyMetadata keys = 1;
 }
 
+// QueryGetPublicKeyRequest defines the Query/GetPublicKey request type.
 message QueryGetPublicKeyRequest {
+    // kid is the unique identifier of the key pair.
+    // UUID format, e.g. "123e4567-e89b-12d3-a456-426614174000".
     string kid = 1;
 }
 
+// QueryGetPublicKeyResponse defines the Query/GetPublicKey response type.
 message QueryGetPublicKeyResponse {
+    // public_key_pem is the PEM-encoded public key.
     string public_key_pem = 1;
 }
 
+// QueryGetPublicKeyVersionRequest defines the Query/GetPublicKeyVersion request type.
 message QueryGetPublicKeyVersionRequest {
+    // kid is the unique identifier of the key pair.
+    // UUID format, e.g. "123e4567-e89b-12d3-a456-426614174000".
     string kid = 1;
+
+    // key pair version, e.g. "1", "2", etc.
     string version = 2;
 }
 
+// QueryGetPublicKeyVersionResponse defines the Query/GetPublicKeyVersion response type.
 message QueryGetPublicKeyVersionResponse {
+    // public_key_pem is the PEM-encoded public key.
     string public_key_pem = 1;
 }

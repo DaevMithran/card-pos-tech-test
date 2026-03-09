@@ -1,19 +1,25 @@
-syntax = "proto3"
+syntax = "proto3";
 
 package hsm.v1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/DaevMithran/mini-hsm/types;
+option go_package = "github.com/DaevMithran/mini-hsm/types";
 
+// KeyMetadata defines the key pair metadata.
 message KeyMetadata {
+    // kid is the unique identifier of the key pair.
     string kid = 1;
 
+    // algorithm is the algorithm used for the key pair, e.g. "ECDSA", etc.
     string algorithm = 2;
     
-    google.protobuf.Timestamp created_at = 3  [(gogoproto.nullable) = false];
+    // created_at is the timestamp of the creation of the key pair.
+    google.protobuf.Timestamp created_at = 3;
+
+    // updated_at is the timestamp of the last update of the key pair.
+    google.protobuf.Timestamp updated_at = 4;
     
-    google.protobuf.Timestamp updated_at = 4  [(gogoproto.nullable) = true];
-    
+    // version is the key pair version, updated each time the key pair is rotated.
     int32 version = 5;
 }

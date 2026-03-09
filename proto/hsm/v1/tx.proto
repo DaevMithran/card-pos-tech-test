@@ -1,49 +1,82 @@
-syntax = "proto3"
+syntax = "proto3";
 
 package hsm.v1;
 
-option go_package = "github.com/DaevMithran/mini-hsm/types;
+import "hsm/v1/key.proto";
 
+option go_package = "github.com/DaevMithran/mini-hsm/types";
+
+// Msg defines the service for handling transactions for the hsm.v1 module.
 service Msg {
-    rpc CreateKey(CreateKeyRequest) returns (CreateKeyResponse);
+    // CreateKey defines a method for creating a new key pair
+    rpc CreateKey(MsgCreateKeyRequest) returns (MsgCreateKeyResponse);
 
-    rpc RotateKey(RotateKeyRequest) returns (RotateKeyResponse);
+    // RotateKey defines a method for rotating a key pair for a given kid
+    rpc RotateKey(MsgRotateKeyRequest) returns (MsgRotateKeyResponse);
 
-    rpc Sign(SignRequest) returns (SignResponse);
+    // Sign defines a method for signing a message using a kid and the latest version of the key pair
+    rpc Sign(MsgSignRequest) returns (MsgSignResponse);
 
-    rpc Verify(VerifyRequest) returns (VerifyResponse);
+    // Verify defines a method for verifying a signature using a kid and the latest version of the key pair
+    rpc Verify(MsgVerifyRequest) returns (MsgVerifyResponse);
 }
 
-message CreateKeyRequest {}
+// MsgCreateKeyRequest defines the Msg/CreateKey request type.
+// It describes the parameters of a request for creating a new key pair.
+message MsgCreateKeyRequest {}
 
-message CreateKeyResponse {
+// MsgCreateKeyResponse defines the Msg/CreateKey response type.
+message MsgCreateKeyResponse {
     KeyMetadata key = 1;
 }
 
-message RotateKeyRequest {
+// MsgRotateKeyRequest defines the Msg/RotateKey request type.
+// It describes the parameters of a request for rotating a key pair for a given kid.
+message MsgRotateKeyRequest {
+    // kid is the unique identifier of the key pair.
+    // UUID format, e.g. "123e4567-e89b-12d3-a456-426614174000".
     string kid = 1;
 }
 
-message RotateKeyResponse {
-    KeyMetadata key = 1;
+// MsgRotateKeyResponse defines the Msg/RotateKey response type.
+message MsgRotateKeyResponse {
+    KeyMetadata metadata = 1;
 }
 
-message SignRequest {
+// MsgSignRequest defines the Msg/Sign request type.
+// It describes the parameters of a request for signing a message using a kid and the latest version
+message MsgSignRequest {
+    // kid is the unique identifier of the key pair.
+    // UUID format, e.g. "123e4567-e89b-12d3-a456-426614174000".
     string kid = 1;
-    bytes message = 2;
+
+    // data is the payload to be signed.
+    bytes data = 2;
 }
 
-message SignResponse {
+// MsgSignResponse defines the Msg/Sign response type.
+message MsgSignResponse {
+    // signature is generated using the private key corresponding to the given kid.
     bytes signature = 1;
 }
 
-message VerifyRequest {
+// MsgVerifyRequest defines the Msg/Verify request type.
+// It describes the parameters of a request for verifying a signature using a kid and the latest version
+message MsgVerifyRequest {
+    // kid is the unique identifier of the key pair.
+    // UUID format, e.g. "123e4567-e89b-12d3-a456-426614174000".
     string kid = 1;
+
+    // data is the payload that was signed.
     bytes data = 2;
+
+    // signature is the signature to be verified.
     bytes signature = 3;
 }
 
-message VerifyResponse {
+// MsgVerifyResponse defines the Msg/Verify response type.
+message MsgVerifyResponse {
+    // valid indicates whether the signature is valid.
     bool valid = 1;
 }
 
