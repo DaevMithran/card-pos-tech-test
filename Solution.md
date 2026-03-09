@@ -38,7 +38,7 @@ grpcurl -plaintext -d '{}' localhost:26657 hsm.v1.Query/ListKeys
 
 Get Public Key
 ```bash
-grpcurl -plaintext -d '{}' localhost:26657 hsm.v1.Query/GetPublicKey
+grpcurl -plaintext -d '{ "kid": <kid> }' localhost:26657 hsm.v1.Query/GetPublicKey
 ```
 
 Sign Message
